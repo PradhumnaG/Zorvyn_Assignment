@@ -52,7 +52,7 @@ com.finance.zorvyn
 
 - Java 17+
 - Maven 3+
-- MySQL / PostgreSQL (or any configured DB)
+- MySQL 
 
 ---
 
