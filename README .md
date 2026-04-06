@@ -58,7 +58,7 @@ com.finance.zorvyn
 
 ### 1. Clone the Repository
 
-git clone https://github.com/your-username/zorvyn.git
+git clone [https://github.com/your-username/zorvyn.git](https://github.com/PradhumnaG/Zorvyn_Assignment)
 cd zorvyn
 
 ---
