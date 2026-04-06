@@ -38,7 +38,7 @@ public interface FinancialRecordRepository extends JpaRepository<FinancialRecord
             "WHERE r.type = :type AND r.deleted = false " +
             "GROUP BY r.category ORDER BY SUM(r.amount) DESC")
     List<Object[]> sumAmountGroupedByCategory(@Param("type") TransactionType type);
-  /
+
     @Query(value = "SELECT DATE_FORMAT(transaction_date, '%Y-%m') AS month, " +
             "COALESCE(SUM(amount), 0) AS total " +
             "FROM financial_records " +

@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class ApplicationConfig {
     private final UserRepository userRepository;
 
-//uses lambda as it has single abstaxt method
+//uses lambda as it has single abstract method
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByEmail(username)
