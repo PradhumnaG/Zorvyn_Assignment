@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+//customises the swagger UI page
 @Configuration
 public class OpenApiConfig {
     private static final String BEARER_SCHEME = "bearerAuth";
@@ -34,8 +35,6 @@ public class OpenApiConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
                                         .description("Paste your JWT token (without 'Bearer ' prefix)")))
-
-
                 .addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME));
     }
 }

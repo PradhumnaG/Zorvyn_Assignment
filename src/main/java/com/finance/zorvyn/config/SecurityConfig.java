@@ -19,7 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+//config entire spring security filter chain
 @Configuration         
 @EnableWebSecurity     
 @EnableMethodSecurity  
@@ -32,38 +32,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-
                 .csrf(AbstractHttpConfigurer::disable)
-
-
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints — no token required
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
-                        .requestMatchers("/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-
-
                         .requestMatchers(HttpMethod.GET, "/api/dashboard/**").authenticated()
-
-
                         .anyRequest().authenticated()
                 )
-
-
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-
                 .authenticationProvider(authenticationProvider())
-
-
                 .addFilterBefore(jwtAuthenticationFilterr, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
+//spring security call this during login
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -72,14 +59,14 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());     // "compare hashed passwords"
         return provider;
     }
-
+//use by authservice to trigger authictication
 
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
+//password encoder Bcrypt with cost facor 10
 
     @Bean
     public PasswordEncoder passwordEncoder() {

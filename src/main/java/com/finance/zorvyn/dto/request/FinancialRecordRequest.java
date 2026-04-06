@@ -6,9 +6,9 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
+//creating and updating  finvaila record
 @Data
-public class TransactionRecordRequest {
+public class FinancialRecordRequest {
     @NotNull(message = "Amount is required")
     @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
     @Digits(integer = 13, fraction = 2,

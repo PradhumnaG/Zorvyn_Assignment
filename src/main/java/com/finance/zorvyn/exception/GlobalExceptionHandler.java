@@ -18,6 +18,7 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    //1 validtion fail
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationErrors(
             MethodArgumentNotValidException ex) {
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Validation failed", errors));
     }
 
-
+//2 application-level exceptions
 
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -47,7 +48,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(ex.getMessage()));
     }
-
+//duplicate resource eg email
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicate(DuplicateResourceException ex) {
         log.warn("Duplicate resource: {}", ex.getMessage());
@@ -55,7 +56,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(ex.getMessage()));
     }
-
+//business logic   negative value
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(BadRequestException ex) {
         log.warn("Bad request: {}", ex.getMessage());
@@ -65,7 +66,8 @@ public class GlobalExceptionHandler {
     }
 
 
-
+//spring security exception
+    //like wrong email,pass
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadCredentials(BadCredentialsException ex) {
@@ -75,7 +77,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Invalid email or password"));
     }
 
-
+//account disable
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ApiResponse<Void>> handleDisabled(DisabledException ex) {
         log.warn("Disabled account login attempt");
@@ -84,7 +86,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Account is disabled. Contact an administrator."));
     }
 
-
+//role check like viewer try to acces admin access
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
@@ -93,7 +95,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("You do not have permission to perform this action"));
     }
 
-
+//unexpected  server error
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneral(Exception ex) {
         // Log full stack trace for debugging — but don't expose it in the response

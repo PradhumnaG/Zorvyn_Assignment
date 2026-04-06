@@ -15,23 +15,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+//user management business logic management
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    // ---------------------------------------------------------------
-    // Read operations
-    // ---------------------------------------------------------------
-
     @Override
-    @Transactional(readOnly = true) // readOnly = true: hint to JPA to skip dirty-checking
+    @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(Pageable pageable) {
-        // JpaRepository.findAll(Pageable) handles offset + limit SQL automatically
         return userRepository.findAll(pageable)
-                .map(this::toResponse); // Convert each User entity to UserResponse DTO
+                .map(this::toResponse);
     }
 
     @Override
@@ -55,21 +50,12 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         return toResponse(user);
     }
-
-    // ---------------------------------------------------------------
-    // Write operations
-    // ---------------------------------------------------------------
-
-    /**
-     * Partially updates a user — only applies non-null fields from the request.
-     * This implements PATCH semantics: "change only what is provided".
-     */
+//for PATCH
     @Override
     @Transactional
     public UserResponse updateUser(Long id, UpdateUserRequest request) {
         User user = findUserOrThrow(id);
 
-        // Apply only the fields that were actually provided in the request
         if (request.getName() != null) {
             user.setName(request.getName());
         }
@@ -77,14 +63,12 @@ public class UserServiceImpl implements UserService {
             user.setRole(request.getRole());
         }
         if (request.getActive() != null) {
-            // If deactivating, verify this isn't the last active admin
             if (!request.getActive()) {
                 validateNotLastAdmin(user);
             }
             user.setActive(request.getActive());
         }
 
-        // save() triggers @PreUpdate which sets updatedAt
         User updated = userRepository.save(user);
         log.info("User {} updated", id);
         return toResponse(updated);
@@ -94,7 +78,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse deactivateUser(Long id) {
         User user = findUserOrThrow(id);
-        // Guard: prevent locking out the entire system
+
         validateNotLastAdmin(user);
         user.setActive(false);
         log.info("User {} deactivated", id);
@@ -110,23 +94,15 @@ public class UserServiceImpl implements UserService {
         return toResponse(userRepository.save(user));
     }
 
-    // ---------------------------------------------------------------
-    // Private helpers
-    // ---------------------------------------------------------------
-
-    /** Loads a User by ID or throws 404 if not found */
+//404 if not found
     private User findUserOrThrow(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
-    /**
-     * Business rule: the system must always have at least one active ADMIN.
-     * If this user is the last active admin, we block deactivation.
-     */
+//atleast one admin should be active
     private void validateNotLastAdmin(User user) {
         if (user.getRole() == Role.ADMIN && user.isActive()) {
-            // Count how many active admins exist (including this user)
             long activeAdminCount = userRepository.findByActive(true, Pageable.unpaged())
                     .stream()
                     .filter(u -> u.getRole() == Role.ADMIN)
@@ -140,10 +116,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    /**
-     * Maps a User entity to a UserResponse DTO.
-     * Excludes the password field for security.
-     */
     private UserResponse toResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())

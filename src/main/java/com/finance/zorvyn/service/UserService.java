@@ -5,7 +5,7 @@ import com.finance.zorvyn.dto.response.UserResponse;
 import com.finance.zorvyn.entity.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+//manage by admin by @preauthorize
 public interface UserService {
 
     Page<UserResponse> getAllUsers(Pageable pageable);

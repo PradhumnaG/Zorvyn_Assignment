@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
+//manage user account
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -29,27 +29,20 @@ public class UserController {
 
     /**
      * GET /api/users/me
-     * Returns the currently authenticated user's profile.
-     * Available to any role — everyone can see their own data.
-     *
-     * Authentication is injected by Spring Security from the SecurityContext.
-     * authentication.getName() returns the username (email) from the JWT subject.
+     * Returns the current user's profile.
      */
     @GetMapping("/me")
     @Operation(summary = "Get current user's profile")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(
-            Authentication authentication) { // Spring injects this from SecurityContext
+            Authentication authentication) {
 
         UserResponse user = userService.getCurrentUser(authentication.getName());
         return ResponseEntity.ok(ApiResponse.success("Profile retrieved", user));
     }
 
-    /**
-     * GET /api/users?page=0&size=10&sort=createdAt,desc
-     * Lists all users with pagination. ADMIN only.
-     */
+   //admis list all users
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')") // Rejects with 403 if caller is not ADMIN
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "List all users (paginated) — ADMIN only")
     public ResponseEntity<ApiResponse<Page<UserResponse>>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -57,7 +50,7 @@ public class UserController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
 
-        // Build Pageable: combines page number, page size, and sort direction
+
         Sort sort = sortDir.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
@@ -67,10 +60,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Users retrieved", users));
     }
 
-    /**
-     * GET /api/users/{id}
-     * Returns a specific user by ID. ADMIN only.
-     */
+   //by admin specifc user detail
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get user by ID — ADMIN only")
@@ -79,10 +69,7 @@ public class UserController {
                 ApiResponse.success("User retrieved", userService.getUserById(id)));
     }
 
-    /**
-     * PATCH /api/users/{id}
-     * Partially updates a user's name, role, or active status. ADMIN only.
-     */
+   //admin only ..update user detail
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update user name/role/status — ADMIN only")
@@ -94,11 +81,7 @@ public class UserController {
                 ApiResponse.success("User updated", userService.updateUser(id, request)));
     }
 
-    /**
-     * POST /api/users/{id}/deactivate
-     * Disables the user account without deleting it. ADMIN only.
-     * Uses POST (not DELETE) because deactivation is reversible.
-     */
+    //admin deactive user
     @PostMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Deactivate a user account — ADMIN only")
@@ -107,10 +90,7 @@ public class UserController {
                 ApiResponse.success("User deactivated", userService.deactivateUser(id)));
     }
 
-    /**
-     * POST /api/users/{id}/activate
-     * Re-enables a previously deactivated account. ADMIN only.
-     */
+   //admin reactivate user
     @PostMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Activate a user account — ADMIN only")
@@ -119,10 +99,7 @@ public class UserController {
                 ApiResponse.success("User activated", userService.activateUser(id)));
     }
 
-    /**
-     * GET /api/users/by-role?role=ANALYST&page=0&size=10
-     * Lists users filtered by role with pagination. ADMIN only.
-     */
+   //admin list user by role
     @GetMapping("/by-role")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "List users by role — ADMIN only")

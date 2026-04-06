@@ -1,9 +1,9 @@
 package com.finance.zorvyn.service.impl;
 
-import com.finance.zorvyn.repository.TransactionRepository;
+import com.finance.zorvyn.repository.FinancialRecordRepository;
 import com.finance.zorvyn.dto.response.DashboardSummaryResponse;
-import com.finance.zorvyn.dto.response.TransactionRecordResponse;
-import com.finance.zorvyn.entity.TransactionRecord;
+import com.finance.zorvyn.dto.response.FinancialRecordResponse;
+import com.finance.zorvyn.entity.FinancialRecord;
 import com.finance.zorvyn.entity.TransactionType;
 import com.finance.zorvyn.service.DashboardService;
 import lombok.RequiredArgsConstructor;
@@ -22,65 +22,47 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DashboardServiceImpl implements DashboardService {
 
-    private final TransactionRepository  transactionRepository;
+    private final FinancialRecordRepository financialRecordRepository;
 
     @Override
     @Transactional(readOnly = true) // No writes — readOnly avoids unnecessary locks
     public DashboardSummaryResponse getSummary(int trendMonths) {
         log.debug("Computing dashboard summary for last {} months", trendMonths);
 
-        // -------------------------------------------------------
-        // 1. Top-level monetary totals
-        // -------------------------------------------------------
+        //1
+        BigDecimal totalIncome = financialRecordRepository.sumAmountByType(TransactionType.INCOME);
+        BigDecimal totalExpenses = financialRecordRepository.sumAmountByType(TransactionType.EXPENSE);
 
-        // SUM(amount) WHERE type = INCOME AND deleted = false
-        BigDecimal totalIncome = transactionRepository.sumAmountByType(TransactionType.INCOME);
-        // SUM(amount) WHERE type = EXPENSE AND deleted = false
-        BigDecimal totalExpenses = transactionRepository.sumAmountByType(TransactionType.EXPENSE);
-
-        // Net balance: positive = net gain, negative = net loss
         BigDecimal netBalance = totalIncome.subtract(totalExpenses);
 
-        // Record counts
-        long incomeCount = transactionRepository.countByTypeAndDeletedFalse(TransactionType.INCOME);
-        long expenseCount = transactionRepository.countByTypeAndDeletedFalse(TransactionType.EXPENSE);
+        long incomeCount = financialRecordRepository.countByTypeAndDeletedFalse(TransactionType.INCOME);
+        long expenseCount = financialRecordRepository.countByTypeAndDeletedFalse(TransactionType.EXPENSE);
 
-        // -------------------------------------------------------
-        // 2. Category-wise breakdowns
-        // -------------------------------------------------------
-
-        // Returns List<Object[]> where each element is [String category, BigDecimal total]
+       //2
         Map<String, BigDecimal> incomeByCategory =
-                categoryMap(transactionRepository.sumAmountGroupedByCategory(TransactionType.INCOME));
+                categoryMap(financialRecordRepository.sumAmountGroupedByCategory(TransactionType.INCOME));
 
         Map<String, BigDecimal> expenseByCategory =
-                categoryMap(transactionRepository.sumAmountGroupedByCategory(TransactionType.EXPENSE));
+                categoryMap(financialRecordRepository.sumAmountGroupedByCategory(TransactionType.EXPENSE));
 
-        // -------------------------------------------------------
-        // 3. Monthly trends (last N months)
-        // -------------------------------------------------------
+        //3
 
-        // nativeQuery returns List<Object[]> where each element is [String month, BigDecimal total]
+
         List<DashboardSummaryResponse.TrendEntry> incomeTrend =
-                trendList(transactionRepository.monthlyTrend("INCOME", trendMonths));
+                trendList(financialRecordRepository.monthlyTrend("INCOME", trendMonths));
 
         List<DashboardSummaryResponse.TrendEntry> expenseTrend =
-                trendList(transactionRepository.monthlyTrend("EXPENSE", trendMonths));
+                trendList(financialRecordRepository.monthlyTrend("EXPENSE", trendMonths));
 
-        // -------------------------------------------------------
-        // 4. Recent activity (last 10 transactions)
-        // -------------------------------------------------------
+         //4
 
-        List<TransactionRecordResponse> recentActivity =
-                transactionRepository.findTop10ByDeletedFalseOrderByTransactionDateDesc()
+        List<FinancialRecordResponse> recentActivity =
+                financialRecordRepository.findTop10ByDeletedFalseOrderByTransactionDateDesc()
                         .stream()
                         .map(this::toRecordResponse)
                         .collect(Collectors.toList());
 
-        // -------------------------------------------------------
-        // 5. Assemble and return
-        // -------------------------------------------------------
-
+        //5
         return DashboardSummaryResponse.builder()
                 .totalIncome(totalIncome)
                 .totalExpense(totalExpenses)
@@ -95,14 +77,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
     }
 
-    // ---------------------------------------------------------------
-    // Private helpers
-    // ---------------------------------------------------------------
-
-    /**
-     * Converts a List<Object[]> of [category, total] pairs to a Map.
-     * LinkedHashMap preserves the ORDER BY DESC from the query.
-     */
+      //6 helper
     private Map<String, BigDecimal> categoryMap(List<Object[]> rows) {
         Map<String, BigDecimal> map = new LinkedHashMap<>();
         for (Object[] row : rows) {
@@ -113,10 +88,6 @@ public class DashboardServiceImpl implements DashboardService {
         return map;
     }
 
-    /**
-     * Converts a List<Object[]> of [month, total] pairs to TrendEntry list.
-     * month is a "YYYY-MM" string from DATE_FORMAT in the native query.
-     */
     private List<DashboardSummaryResponse.TrendEntry> trendList(List<Object[]> rows) {
         return rows.stream()
                 .map(row -> DashboardSummaryResponse.TrendEntry.builder()
@@ -126,9 +97,8 @@ public class DashboardServiceImpl implements DashboardService {
                 .collect(Collectors.toList());
     }
 
-    /** Maps a FinancialRecord entity to FinancialRecordResponse DTO */
-    private TransactionRecordResponse toRecordResponse(TransactionRecord record) {
-        return TransactionRecordResponse.builder()
+    private FinancialRecordResponse toRecordResponse(FinancialRecord record) {
+        return FinancialRecordResponse.builder()
                 .id(record.getId())
                 .amount(record.getAmount())
                 .type(record.getType())

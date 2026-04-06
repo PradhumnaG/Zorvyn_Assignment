@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+/*register and login endpoint*/
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,27 +25,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
 
-
+//creates a new user account.
     @PostMapping("/register")
     @Operation(summary = "Register a new user",
             description = "Creates a new account. Role defaults to VIEWER if not specified.")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody RegisterRequest request) {
-
         AuthResponse response = authService.register(request);
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Registration successful", response));
     }
-
+//login
 
     @PostMapping("/login")
     @Operation(summary = "Login with email and password",
             description = "Returns a JWT Bearer token. Use it in the Authorization header.")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request) {
-
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }

@@ -25,7 +25,7 @@ public class DashboardSummaryResponse {
     private Map<String, BigDecimal> expenseByCategory;
     private List<TrendEntry> incomeMonthlyTrend;
     private List<TrendEntry> expenseMonthlyTrend;
-    private List<TransactionRecordResponse> recentActivity;
+    private List<FinancialRecordResponse> recentActivity;
     @Data
     @Builder
     @NoArgsConstructor

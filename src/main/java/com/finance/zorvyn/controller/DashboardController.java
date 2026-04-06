@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+//dashboard summary
+//all can access
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
@@ -21,20 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardController {
     private final DashboardService dashboardService;
 
-    /**
-     * GET /api/dashboard/summary?months=6
-     *
-     * Returns the full dashboard summary in a single call:
-     *   - Total income, expenses, net balance
-     *   - Record counts by type
-     *   - Category-wise breakdown (income and expense)
-     *   - Monthly trend data for the last N months
-     *   - 10 most recent transactions
-     *
-     * @param months number of months of trend history to include (default 6, max 24)
-     *
-     * Accessible to: VIEWER, ANALYST, ADMIN (all authenticated users)
-     */
+//summary of all record
+    //all can access
     @GetMapping("/summary")
     @Operation(
             summary = "Get full dashboard summary — all roles",
@@ -44,8 +33,6 @@ public class DashboardController {
     public ResponseEntity<ApiResponse<DashboardSummaryResponse>> getSummary(
             @RequestParam(defaultValue = "6") int months) {
 
-        // Cap trend months to a sensible range: 1–24
-        // Prevents someone requesting 1000 months and doing unnecessary DB work
         int clampedMonths = Math.max(1, Math.min(months, 24));
 
         DashboardSummaryResponse summary = dashboardService.getSummary(clampedMonths);

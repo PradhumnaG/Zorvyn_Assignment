@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionRecordResponse {
+public class FinancialRecordResponse {
     private Long id;
     private BigDecimal amount;
     private TransactionType type;
