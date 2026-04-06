@@ -46,12 +46,11 @@ class AuthServiceImplTest {
     @Test
     void register_ShouldReturnAuthResponse_WhenValidRequest() {
         // Given
-        RegisterRequest request = RegisterRequest.builder()
-                .name("John Doe")
-                .email("john@example.com")
-                .password("password123")
-                .role(Role.VIEWER)
-                .build();
+        RegisterRequest request = new RegisterRequest();
+        request.setName("John Doe");
+        request.setEmail("john@example.com");
+        request.setPassword("password123");
+        request.setRole(Role.VIEWER);
 
         User savedUser = User.builder()
                 .id(1L)
@@ -87,9 +86,8 @@ class AuthServiceImplTest {
     @Test
     void register_ShouldThrowDuplicateResourceException_WhenEmailExists() {
         // Given
-        RegisterRequest request = RegisterRequest.builder()
-                .email("existing@example.com")
-                .build();
+        RegisterRequest request = new RegisterRequest();
+        request.setEmail("existing@example.com");
 
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
@@ -105,10 +103,9 @@ class AuthServiceImplTest {
     @Test
     void login_ShouldReturnAuthResponse_WhenValidCredentials() {
         // Given
-        LoginRequest request = LoginRequest.builder()
-                .email("john@example.com")
-                .password("password123")
-                .build();
+        LoginRequest request = new LoginRequest();
+        request.setEmail("john@example.com");
+        request.setPassword("password123");
 
         User user = User.builder()
                 .id(1L)

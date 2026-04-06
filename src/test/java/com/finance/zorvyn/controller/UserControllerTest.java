@@ -5,6 +5,7 @@ import com.finance.zorvyn.dto.request.UpdateUserRequest;
 import com.finance.zorvyn.dto.response.UserResponse;
 import com.finance.zorvyn.entity.Role;
 import com.finance.zorvyn.service.UserService;
+import com.finance.zorvyn.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,6 +36,9 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private JwtService jwtService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -115,17 +120,16 @@ class UserControllerTest {
     @WithMockUser(roles = "ADMIN")
     void updateUser_ShouldReturnUpdatedUser_WhenAdmin() throws Exception {
         // Given
-        UpdateUserRequest request = UpdateUserRequest.builder()
-                .name("Updated Name")
-                .role(Role.EDITOR)
-                .active(false)
-                .build();
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setName("Updated Name");
+        request.setRole(Role.ANALYST);
+        request.setActive(false);
 
         UserResponse updatedUser = UserResponse.builder()
                 .id(1L)
                 .name("Updated Name")
                 .email("john@example.com")
-                .role(Role.EDITOR)
+                .role(Role.ANALYST)
                 .active(false)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -135,7 +139,8 @@ class UserControllerTest {
         // When & Then
         mockMvc.perform(patch("/api/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
@@ -158,7 +163,8 @@ class UserControllerTest {
         when(userService.deactivateUser(1L)).thenReturn(deactivatedUser);
 
         // When & Then
-        mockMvc.perform(post("/api/users/1/deactivate"))
+        mockMvc.perform(post("/api/users/1/deactivate")
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
@@ -181,7 +187,8 @@ class UserControllerTest {
         when(userService.activateUser(1L)).thenReturn(activatedUser);
 
         // When & Then
-        mockMvc.perform(post("/api/users/1/activate"))
+        mockMvc.perform(post("/api/users/1/activate")
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))

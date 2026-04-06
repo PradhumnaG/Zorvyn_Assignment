@@ -11,6 +11,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -27,6 +28,9 @@ class DashboardControllerTest {
     @MockBean
     private DashboardService dashboardService;
 
+    @MockBean
+    private com.finance.zorvyn.security.JwtService jwtService;
+
     @Test
     @WithMockUser
     void getSummary_ShouldReturnDashboardSummary_WhenAuthenticated() throws Exception {
@@ -34,10 +38,13 @@ class DashboardControllerTest {
         DashboardSummaryResponse summary = DashboardSummaryResponse.builder()
                 .totalIncome(BigDecimal.valueOf(10000.00))
                 .totalExpense(BigDecimal.valueOf(5000.00))
-                .netBalance(BigDecimal.valueOf(5000.00))
-                .totalTransactions(150L)
-                .categoryBreakdown(Map.of("Food", BigDecimal.valueOf(2000.00)))
-                .monthlyTrends(Map.of())
+                .totalBalance(BigDecimal.valueOf(5000.00))
+                .totalIncomeRecords(10L)
+                .totalExpenseRecords(5L)
+                .incomeByCategory(Map.of("Salary", BigDecimal.valueOf(10000.00)))
+                .expenseByCategory(Map.of("Food", BigDecimal.valueOf(2000.00)))
+                .incomeMonthlyTrend(List.of())
+                .expenseMonthlyTrend(List.of())
                 .recentActivity(List.of())
                 .build();
 
@@ -51,7 +58,7 @@ class DashboardControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.totalIncome").value(10000.00))
                 .andExpect(jsonPath("$.data.totalExpense").value(5000.00))
-                .andExpect(jsonPath("$.data.netBalance").value(5000.00));
+                .andExpect(jsonPath("$.data.totalBalance").value(5000.00));
     }
 
     @Test
@@ -61,10 +68,13 @@ class DashboardControllerTest {
         DashboardSummaryResponse summary = DashboardSummaryResponse.builder()
                 .totalIncome(BigDecimal.valueOf(10000.00))
                 .totalExpense(BigDecimal.valueOf(5000.00))
-                .netBalance(BigDecimal.valueOf(5000.00))
-                .totalTransactions(150L)
-                .categoryBreakdown(Map.of())
-                .monthlyTrends(Map.of())
+                .totalBalance(BigDecimal.valueOf(5000.00))
+                .totalIncomeRecords(10L)
+                .totalExpenseRecords(5L)
+                .incomeByCategory(Map.of("Salary", BigDecimal.valueOf(10000.00)))
+                .expenseByCategory(Map.of("Food", BigDecimal.valueOf(2000.00)))
+                .incomeMonthlyTrend(List.of())
+                .expenseMonthlyTrend(List.of())
                 .recentActivity(List.of())
                 .build();
 

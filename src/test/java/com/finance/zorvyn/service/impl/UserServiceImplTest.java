@@ -88,7 +88,7 @@ class UserServiceImplTest {
         // When & Then
         assertThatThrownBy(() -> userService.getUserById(1L))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found with id: 1");
+                .hasMessage("User not found with id : '1'");
     }
 
     @Test
@@ -124,17 +124,16 @@ class UserServiceImplTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        UpdateUserRequest request = UpdateUserRequest.builder()
-                .name("Updated Name")
-                .role(Role.EDITOR)
-                .active(false)
-                .build();
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setName("Updated Name");
+        request.setRole(Role.ANALYST);
+        request.setActive(false);
 
         User updatedUser = User.builder()
                 .id(1L)
                 .name("Updated Name")
                 .email("john@example.com")
-                .role(Role.EDITOR)
+                .role(Role.ANALYST)
                 .active(false)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -147,8 +146,8 @@ class UserServiceImplTest {
 
         // Then
         assertThat(result.getName()).isEqualTo("Updated Name");
-        assertThat(result.getRole()).isEqualTo(Role.EDITOR);
-        assertThat(result.getActive()).isFalse();
+        assertThat(result.getRole()).isEqualTo(Role.ANALYST);
+        assertThat(result.isActive()).isFalse();
     }
 
     @Test
@@ -170,7 +169,7 @@ class UserServiceImplTest {
         UserResponse result = userService.deactivateUser(1L);
 
         // Then
-        assertThat(result.getActive()).isFalse();
+        assertThat(result.isActive()).isFalse();
     }
 
     @Test
@@ -214,6 +213,6 @@ class UserServiceImplTest {
         UserResponse result = userService.activateUser(1L);
 
         // Then
-        assertThat(result.getActive()).isTrue();
+        assertThat(result.isActive()).isTrue();
     }
 }
