@@ -39,9 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
-                        // Actuator endpoints - require basic auth
                         .requestMatchers("/actuator/**").permitAll()
-                        // Protected endpoints requiring authentication
                         .requestMatchers(HttpMethod.GET, "/api/dashboard/**").authenticated()
                         .anyRequest().authenticated()
                 )

@@ -27,6 +27,7 @@ public class Datalntializer {
                 User admin = User.builder()
                         .name("System Administrator")
                         .email("admin@finance.com")
+                        // NEVER hardcode passwords in production — use env vars
                         // This is acceptable for a dev seed only
                         .password(passwordEncoder.encode("Admin@123"))
                         .role(Role.ADMIN)
